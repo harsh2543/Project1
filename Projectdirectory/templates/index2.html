@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Summarizer</title>
+    
+    <style>
+      
+        body {
+            font-family: 'Roboto', Arial, sans-serif; 
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Article Summarizer</h1>
+    <p>Enter an article URL below to get a summary:</p>
+
+    <input type="url" id="url" placeholder="Enter article URL here" required>
+    <button onclick="summarizeArticle()">Summarize</button>
+
+    <div id="result" class="result"></div>
+
+    <script>
+        async function summarizeArticle() {
+            const urlInput = document.getElementById("url").value; 
+            const resultDiv = document.getElementById("result"); 
+            resultDiv.textContent = "Fetching summary..."; 
+
+            if (!urlInput) {
+                resultDiv.innerHTML = `<span class="error">Please enter a valid URL.</span>`;
+                return;
+            }
+
+            try {
+                const response = await fetch("/summarize", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ url: urlInput }) 
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.textContent = data.summary || "Summary not available."; // Display the summary
+                } else {
+                    resultDiv.innerHTML = `<span class="error">${data.error || "Error occurred."}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
